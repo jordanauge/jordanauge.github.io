@@ -1,0 +1,17 @@
+bs4
+cssmin
+fontawesome-markdown @git+https://github.com/jordanauge/fontawesome-markdown@v0.5.0-python3.12fix
+jsmin
+lxml
+Markdown
+pelican-liquid-tags
+pelican-webassets
+pelican-i18n-subsites
+pelican-jinja2content
+pelican-render-math
+pylatexenc
+pybtex
+PyYAML
+rcssmin
+scholarly
+webassets

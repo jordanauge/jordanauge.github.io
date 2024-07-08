@@ -1,0 +1,13 @@
+{% if CV_PROJECTS(lang) %}
+<section class="section projects-section">
+    <h2 class="section-title"><i class="fa fa-archive"></i>Projects</h2>
+    <div class="intro">
+        <p>{{ CV_PROJECT_INTRO }}</p>
+    </div><!--//intro-->
+    {% for project in CV_PROJECTS(lang) %}
+        <div class="item">
+            <span class="project-title"><a href="#hook">{{ project.title }}</a></span> - <span class="project-tagline">{{ project.tagline }}</span>
+        </div><!--//item-->
+    {% endfor %}
+</section><!--//section-->
+{% endif %}

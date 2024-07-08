@@ -1,0 +1,19 @@
+{% if EXPERIENCE(lang) %}
+<section class="section experiences-section">
+    <h2 class="section-title"><i class="fa fa-briefcase"></i>{{ _('Research experience') }}</h2>
+    {% for experience in EXPERIENCE(page.lang) %}
+        <div class="item">
+            <div class="meta">
+                <div class="upper-row">
+                    <h3 class="job-title">{{ experience.position }}</h3>
+                    <div class="time">{{ experience.year }}</div>
+                </div><!--//upper-row-->
+                <div class="company">{{ experience.lab }}</div>
+            </div><!--//meta-->
+            <div class="details">
+                <p>{{ experience.description }}</p>
+            </div><!--//details-->
+        </div><!--//item-->
+    {% endfor %}
+</section><!--//section-->
+{% endif %}

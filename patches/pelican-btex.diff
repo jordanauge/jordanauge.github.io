@@ -1,0 +1,214 @@
+diff --git a/btex.py b/btex.py
+index 7a7fed5..9e0a989 100755
+--- a/btex.py
++++ b/btex.py
+@@ -195,7 +195,13 @@ def parse_bibtex_file(src_filename):
+ 
+         authors = []
+         for author in item['authors']:
+-            authors.append(author.first()[0] + ' ' + ' '.join(author.last()))
++            #authors.append(author.first()[0] + ' ' + ' '.join(author.last()))
++            # jordan: authors.append(" ".join(author.first()[:-1]) + ' ' + ' '.join(author.last()))
++
++            # jordan
++            first = author.first()
++            first = first[0] + ' ' if first else ''
++            authors.append(first + ' '.join(author.last()))
+ 
+         if len(authors) > 1:
+             item['authors_text'] = ", ".join(authors[:-1]) + " and " + authors[-1]
+@@ -1395,7 +1401,7 @@ def btex(content):
+                             citation_update_count += 1
+ 
+                         # Update citations before injecting them to the publication list
+-                        if citation_update_needed:
++                        if citation_update_needed and os.environ.get('BTEX_UPDATE', 'false') == 'true':
+                             logger.warning("[btex] Citation update needed for articles: " + str(citation_update_count))
+                             # Go publications through paper by paper
+                             if google_access_valid and google_queries < btex_settings['google_scholar'][
+@@ -1543,7 +1549,7 @@ def btex(content):
+                                                     btex_settings['google_scholar']['fetch_item_timeout'][1])
+ 
+                                 logger.warning('[btex]  Sleeping [{wait_time} sec]'.format(wait_time=str(wait_time)))
+-                                sleep(wait_time)
++                                #sleep(wait_time)
+ 
+                     # Inject citation information to the publication list
+                     current_citation_data = get_citation_data(
+@@ -1670,7 +1676,7 @@ def btex(content):
+                             citation_update_count += 1
+ 
+                     # Update citations before injecting them to the publication list
+-                    if citation_update_needed:
++                    if citation_update_needed and os.environ.get('BTEX_UPDATE', 'false') == 'true':
+                         logger.warning('[btex] Citation update needed for articles: {citation_update_count}'.format(
+                             citation_update_count=str(citation_update_count)))
+ 
+@@ -1814,10 +1820,11 @@ def btex(content):
+                                         query.set_num_page_results(1)
+ 
+                                         querier.send_query(query)
+-                                        total_citations = int(querier.articles[0].attrs['num_citations'][0])
+-                                        cluster_id = str(querier.articles[0].attrs['cluster_id'][0])
+-                                        pdf_url = str(querier.articles[0].attrs['url_pdf'][0])
+-                                        citation_list_url = str(querier.articles[0].attrs['url_citations'][0])
++                                        if len(querier.articles) > 0:
++                                            total_citations = int(querier.articles[0].attrs['num_citations'][0])
++                                            cluster_id = str(querier.articles[0].attrs['cluster_id'][0])
++                                            pdf_url = str(querier.articles[0].attrs['url_pdf'][0])
++                                            citation_list_url = str(querier.articles[0].attrs['url_citations'][0])
+ 
+                                         scholar_citations_found = len(querier.articles) > 0
+ 
+@@ -1861,7 +1868,7 @@ def btex(content):
+                                         )
+ 
+                                         logger.warning('[btex]  Sleeping [{wait_time} sec]'.format(wait_time=str(wait_time)))
+-                                        sleep(wait_time)
++                                        #sleep(wait_time)
+ 
+                 # Inject citation information to the publication list
+                 for pub in publications:
+@@ -2359,4 +2366,4 @@ def register():
+     signals.page_generator_context.connect(process_page_metadata)
+ 
+     signals.article_generator_finalized.connect(move_resources)
+-    signals.content_object_init.connect(btex)
+\ No newline at end of file
++    signals.content_object_init.connect(btex)
+diff --git a/btex_style.py b/btex_style.py
+index 73eeeca..fbcc008 100755
+--- a/btex_style.py
++++ b/btex_style.py
+@@ -10,6 +10,73 @@ from pybtex.style.template import (
+ )
+ from pybtex.richtext import Text, Symbol
+ 
++# jordan
++
++from pybtex.style.template import node, FieldIsMissing
++
++MAP_NAME_URL = {
++    u'Jordan Aug\xe9': '#',
++    u'Sandrine Avakian': 'http://fr.viadeo.com/fr/profile/avakian.sandrine',
++    u'Thomas Bourgeau': 'http://scholar.google.fr/citations?user=u1aoKZYAAAAJ',
++    u'Marc-Olivier Buob': 'http://marcolivier.buob.pagesperso-orange.fr/',
++    u'Giovanna Carofiglio': 'https://scholar.google.com/citations?user=fvP_U2MAAAAJ',
++    u'Danilo Cicalese': 'https://fr.linkedin.com/in/danilocicalese',
++    u'Alberto Compagno': 'https://scholar.google.com/citations?user=jzZfJrMAAAAJ', # https://sites.google.com/a/di.uniroma1.it/compagno/
++    u'Marcel Enguehard': 'https://enguehard.org/',
++    # https://scholar.google.com/citations?authorid=1zxXbsgAAAAJ
++    # https://github.com/marceleng
++    # https://www.linkedin.com/in/marceleng
++    # https://twitter.com/menguehard
++    u'Serge Fdida': 'https://www-npa.lip6.fr/~sf/',
++    # https://scholar.google.com/citations?user=XL6CnCwAAAAJ
++    u'Timur Friedman': 'https://www-npa.lip6.fr/~timur/',
++    u'Giulio Grassi': 'http://scholar.google.com/citations?user=DzaE5C4AAAAJ',
++    u'Luca Muscariello': 'https://sites.google.com/view/lucamuscariello/',
++    u'Sara Oueslati': 'https://fr.linkedin.com/in/sara-oueslati-68b47716',
++    u'Michele Papalini': 'https://scholar.google.com/citations?user=sEIjNiYAAAAJ',
++    u'Giovanni Pau': 'scholar.google.com/citations?user=jLEgvnsAAAAJ',
++    u'James Roberts': 'https://scholar.google.fr/citations?user=ebkV47UAAAAJ',
++    u'Dario Rossi': 'http://perso.telecom-paristech.fr/~drossi/',
++    u'Jacques Samain': 'https://jaqu.eu/',
++    # https://twitter.com/LeJackSamain
++    # https://www.linkedin.com/in/jacques-samain-25138694/
++    u'Mauro Sardara': 'https://fr.linkedin.com/in/mauro-sardara-584100a7',
++    u'Nicolas Turro': 'http://sed.inrialpes.fr/people/turro/',
++    u'Xuan Zeng': 'https://www.linkedin.com/in/xuan-zeng-56a2968b/',
++    u'': '#',
++}
++
++def make_url(person):
++    #person_text = person.text
++    #name = person_text.format().plaintext()
++    name = str(person)
++    url = MAP_NAME_URL.get(name, None)
++    if not url:
++        pass#print("MISSING", name)
++    return href() [ url, name ] if url else name
++
++@node
++def names(children, data, role, **kwargs):
++    """Return formatted names."""
++
++    assert not children
++    data = data['entry']
++    try:
++        persons = data.persons[role]
++    except KeyError:
++        # role is a bibtex field so it makes sense
++        # to raise FieldIsMissing; optional will catch it
++        raise FieldIsMissing(role, data)
++
++    # person.text is set by pybtex.style.formatting.BaseStyle.format_entries()
++    # TODO: do something about it, because it is confusing
++    #import pdb; pdb.set_trace()
++    return join(**kwargs) [[ make_url(person) for person in persons]].format_data(data)
++
++    #return join(**kwargs) [[ person.text for person in persons]].format_data(data)
++
++
++# end jordan
+ 
+ def dashify(text):
+     dash_re = re.compile(r'-+')
+@@ -25,10 +92,11 @@ class Style(UnsrtStyle):
+ 
+     def format_btitle(self, e, which_field, as_sentence=True):
+         formatted_title = field(which_field)
+-        if as_sentence:
+-            return sentence[ formatted_title ]
+-        else:
+-            return formatted_title
++#        if as_sentence:
++#            return tag('emph') [sentence(capfirst=False) [ formatted_title ]]
++#        else:
++#            return tag('emph') [formatted_title]
++        return tag('b') [formatted_title]
+ 
+     def format_title(self, e, which_field, as_sentence=True):
+ 
+@@ -171,4 +239,4 @@ class Style(UnsrtStyle):
+                 sentence(capfirst=False) [ optional_field('note') ],
+                 #self.format_web_refs(e),
+             ]
+-        return template.format_data(e)
+\ No newline at end of file
++        return template.format_data(e)
+diff --git a/scholar/scholar.py b/scholar/scholar.py
+index 5491736..d4d2942 100755
+--- a/scholar/scholar.py
++++ b/scholar/scholar.py
+@@ -364,8 +364,8 @@ class ScholarArticleParser(object):
+         # This parses any global, non-itemized attributes from the page.
+         self._parse_globals()
+ 
+-        # Now parse out listed articles:
+-        for div in self.soup.findAll(ScholarArticleParser._tag_results_checker):
++        # Now parse out liste articles:
++        for div in self.soup.indAll(ScholarArticleParser._tag_results_checker):
+             self._parse_article(div)
+             self._clean_article()
+             if self.article['title']:
+@@ -539,9 +539,16 @@ class ScholarArticleParser120726(ScholarArticleParser):
+         for tag in div:
+             if not hasattr(tag, 'name'):
+                 continue
+-            if str(tag).lower().find('.pdf'):
+-                if tag.find('div', {'class': 'gs_ttss'}):
+-                    self._parse_links(tag.find('div', {'class': 'gs_ttss'}))
++#            if str(tag).lower().find('.pdf'):
++#                if tag.find('div', {'class': 'gs_ttss'}):
++#                    self._parse_links(tag.find('div', {'class': 'gs_ttss'}))
++            if str(tag).lower().find('.pdf') != -1:
++                try:
++                    if tag.find('div', {'class': 'gs_ttss'}) != -1:
++                        self._parse_links(tag.find('div', {'class': 'gs_ttss'}))
++                except Exception as e:
++                    import pdb; pdb.set_trace()
++                    pass
+ 
+             if tag.name == 'div' and self._tag_has_class(tag, 'gs_ri'):
+                 # There are (at least) two formats here. In the first

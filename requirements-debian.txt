@@ -1,0 +1,9 @@
+# Same as requirements.txt, but only packages not available as debian packages
+
+# My requirements
+fontawesome-markdown
+
+# plugin:btex
+scholarly
+
+# all pelican modules not available as submodules and install in requirements.txt

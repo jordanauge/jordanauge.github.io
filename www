@@ -1,0 +1,87 @@
+#!/bin/bash
+
+PROG=$PROG
+
+function usage
+{
+    echo "Usage: $PROG COMMAND PARAMS"
+    exit 1
+}
+
+function slugify
+{
+    echo "$1" | iconv -t ascii//TRANSLIT | sed -r s/[^a-zA-Z0-9]+/-/g | sed -r s/^-+\|-+$//g | tr A-Z a-z
+}
+
+function maybe_republish
+{
+    make publish
+}
+
+function cmd_news_usage
+{
+    echo "Usage: $PROG news COMMAND"
+    echo
+    echo "Commands:"
+    echo "    create - Create a new NEWS entry"
+    echo
+}
+
+function cmd_news_create
+{
+    DATE=$(date +'%Y-%m-%d')
+    RND=$RANDOM
+    FN="$DATE-$RANDOM"
+    cat > $FN <<-EOF
+---
+title: <++>
+date: $DATE
+slug: <++>
+---
+<++>
+EOF
+    vim $FN
+    TITLE=$(sed -n "/^title:/{s/^title: \(.*\)$/\1/g;p}" $FN)
+    echo $TITLE
+    SLUG=$(slugify "$TITLE")
+    echo $SLUG
+    echo $DATE
+    FN_SLUG=$(sed -n "/^slug:/{s/^slug: \(.*\)$/\1/g;p}" $FN)
+    echo fn slug $FN_SLUG
+    if [[ ( "$FN_SLUG" == "<++>" ) || ( "$FN_SLUG" == "" ) ]]; then
+        echo "Updating slug automatically to $SLUG ..."
+        sed -i "s/slug:.*/slug: $SLUG/" $FN
+    fi
+    mv $FN $DATE-$SLUG
+    echo "Saved $DATE-$SLUG !"
+    maybe_republish
+}
+
+function cmd_news
+{
+    COMMAND=$1
+    case $COMMAND in
+        create)
+            cmd_news_create
+            ;;
+        *)
+            cmd_news_usage
+            exit 1
+            ;;
+    esac
+}
+
+COMMAND=$1
+case $COMMAND in
+    news)
+        shift
+        cmd_news $@
+        ;;
+    *)
+        usage
+        ;;
+esac
+
+
+
+

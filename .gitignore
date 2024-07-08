@@ -1,0 +1,8 @@
+*.pyc
+data/old
+manifold
+output
+plugins.additional
+plugins.src
+themes.src
+cache/*

@@ -1,0 +1,21 @@
+[submodule "plugins/liquid-tags"]
+	path = plugins/liquid-tags
+	url = git@github.com:pelican-plugins/liquid-tags.git
+[submodule "plugins.all"]
+	path = plugins.all
+	url = git@github.com:getpelican/pelican-plugins.git
+[submodule "themes/Z"]
+	path = themes/Z
+	url = git@github.com:mpaglia0/Z.git
+[submodule "themes.all"]
+	path = themes.all
+	url = https://github.com/getpelican/pelican-themes.git
+[submodule "plugins/webassets"]
+	path = plugins/webassets
+	url = git@github.com:pelican-plugins/webassets
+[submodule "plugins/pelican-page-hierarchy"]
+	path = plugins/pelican-page-hierarchy
+	url = git@github.com:akhayyat/pelican-page-hierarchy.git
+[submodule "plugins/pelican-btex"]
+	path = plugins/pelican-btex
+	url = https://github.com/toni-heittola/pelican-btex
