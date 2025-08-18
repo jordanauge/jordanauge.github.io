@@ -19,3 +19,6 @@
 [submodule "plugins/liquid-tags"]
 	path = plugins/liquid-tags
 	url = git@github.com:jordanauge/liquid-tags.git
+[submodule "plugins/render-math"]
+	path = plugins/render-math
+	url = https://github.com/pelican-plugins/render-math
