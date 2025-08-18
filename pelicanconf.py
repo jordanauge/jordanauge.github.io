@@ -2,6 +2,10 @@
 # Global settings
 #
 
+import os
+import sys
+sys.path.append(os.curdir)
+
 AUTHOR = 'Jordan Augé'
 SITENAME = 'Jordan Augé'
 # XXX This default should be handled in theme when empty
@@ -20,6 +24,7 @@ DEFAULT_PAGINATION = 10
 # RELATIVE_URLS = 'true'
 
 # Article info
+SHOW_FULL_ARTICLE = True
 SHOW_ARTICLE_AUTHOR = 'false'
 SHOW_ARTICLE_CATEGORY = 'true'
 SHOW_DATE_MODIFIED = 'true'
@@ -34,7 +39,7 @@ SHOW_DATE_MODIFIED = 'true'
 #
 # See: https://docs.getpelican.com/en/latest/plugins.html 
 #
-PLUGIN_PATHS = ["plugins"]
+PLUGIN_PATHS = ["plugins", 'plugins/liquid-tags/pelican/plugins']
 PLUGINS = [
      'pelican-page-hierarchy',
      'i18n_subsites',
@@ -49,6 +54,7 @@ MENUITEMS = (
     #('CV', '/cv'),
     ('Research', '/research'),
     ('Publications', '/research/publications'),
+    ('Projects', '/projects'),
     ('Blog', '/blog'),
     #('Projects', '/projects'),
 #    ('Misc', '/misc'),
@@ -79,7 +85,8 @@ MARKDOWN = {
             'smart_angled_quotes' : 'true'
         },
         'markdown.extensions.toc': {
-            'permalink': 'true',
+            # This shows special markers such as end of line
+            'permalink': 'false',
         },
         'fontawesome_markdown': {},
     }
@@ -139,11 +146,14 @@ AUTHOR_FEED_RSS = None
 #PAGE_SAVE_AS = '{slug}.html'
 
 # FIXME This requires to list all subfolders 
-PAGE_PATHS = ['pages', 'pages/research']
+PAGE_PATHS = ['pages']
 PAGE_URL = '{slug}/'
 PAGE_SAVE_AS = '{slug}/index.html'
 # XXX # PAGE_LANG_URL ('pages/{slug}-{lang}.html')
 # XXX # PAGE_LANG_SAVE_AS ('pages/{slug}-{lang}.html')	
+
+# NOTE The pelican-page-hierarchy plugin allows to preserve the pages folder
+# structure
 
 #
 # We add both pages and article (blog) content to the list of static paths to
@@ -159,6 +169,7 @@ PAGE_SAVE_AS = '{slug}/index.html'
 STATIC_PATHS = [
     'pages',
     'blog',
+    'static', # content/static
     'extra', #wk-1
 ]
 
@@ -211,21 +222,6 @@ DISPLAY_CATEGORIES_ON_MENU = False
 DESCRIPTION="Jordan Augé's homepage"
 
 # See: https://github.com/mpaglia0/Z?tab=readme-ov-file#translation-for-templates-strings
-
-# custom Jinja2 filter for localizing theme
-def gettext(string, lang):
-    if lang == "en":
-        return string
-    elif lang == "fr":
-        if string == "Archives": return "Archivi"
-        elif string == "Archives for": return "Archivi per"
-        elif string == "Posted by": return "Pubblicato da"
-        else:
-            return string
-
-JINJA_FILTERS = {
-    'gettext': gettext,
-}
 
 # theme: pelican-bootstrap
 
@@ -367,6 +363,21 @@ JINJA2CONTENT_TEMPLATES = ['../templates']
 
 # This is not used although it would be more standard
 #EXTRA_TEMPLATES_PATHS = ['macros']
+
+from jinja_filters import gettext, load_data
+
+JINJA_FILTERS = {
+    'gettext': gettext.gettext,
+    'load_data': load_data.load_data,
+}
+
+# --- plugin: liquid-tags ------------------------------------------------------
+
+LIQUID_TAGS = ['youtube', 'manifold']
+
+#LIQUID_CONFIGS = (('PATH', '.', "The default path"), ('SITENAME', 'Default Sitename', 'The name of the site'))
+
+
 
 ################################################################################
 #

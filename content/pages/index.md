@@ -3,7 +3,7 @@ title: Home
 slug:
 save_as: index.html
 lang: en
-template: fullpage
+template: mainpage
 ---
 
 <div class="row">

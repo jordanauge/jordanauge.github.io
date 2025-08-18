@@ -1,11 +1,12 @@
 {% extends "base.html" %}
 
 {% block container %}
-  <div class="bd-masthead mb-3" id="content">
-    <div class="container-xxl bd-gutter">
+  <header class="py-5 border-bottom">
+    <div class="container-xxl bd-gutter pt-md-1 pb-md-4">
       {{ page.content }}
     </div>
-  </div>
+  </header>
+
 {% endblock container %}
 
 {% block title %}{{ page.title }}{% endblock title %}

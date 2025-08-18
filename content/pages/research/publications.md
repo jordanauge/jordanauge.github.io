@@ -2,6 +2,7 @@
 title: Publications
 slug: publications
 status: published
+template: research
 ---
 
 <div class='btex'

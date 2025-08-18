@@ -2,6 +2,7 @@
 title: Phd thesis
 slug: phd
 lang: en
+template: research
 ---
 <link rel="stylesheet" href="/lib/phpBibLib/bibtex.css" type="text/css">
 

@@ -157,12 +157,14 @@
       <div class="d-lg-grid content" id="content">
 
         {% block sidebar %}
-        {% include 'includes/sidebar.html' %}
+        {% include 'includes/blog-sidebar.html' %}
         {% endblock %}
 
         <div class="main">
         {% block breadcrumbs %}{% endblock %}
-        {% block content %}{% endblock content %}
+          <div class="posts-container mx-auto my-5">
+          {% block content %}{% endblock content %}
+          </div>
         </div>
     </div>
 </div>

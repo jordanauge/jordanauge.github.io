@@ -1,6 +1,3 @@
-[submodule "plugins/liquid-tags"]
-	path = plugins/liquid-tags
-	url = git@github.com:pelican-plugins/liquid-tags.git
 [submodule "plugins.all"]
 	path = plugins.all
 	url = git@github.com:getpelican/pelican-plugins.git
@@ -19,3 +16,6 @@
 [submodule "plugins/pelican-btex"]
 	path = plugins/pelican-btex
 	url = https://github.com/toni-heittola/pelican-btex
+[submodule "plugins/liquid-tags"]
+	path = plugins/liquid-tags
+	url = git@github.com:jordanauge/liquid-tags.git

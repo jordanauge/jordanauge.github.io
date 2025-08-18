@@ -43,13 +43,19 @@
 
 {% block content %}
 {% for article in articles_page.object_list %}
+
 <div class="post-preview margin-top-20">
-   <a href="{{ SITEURL }}/{{ article.url }}" class="text-decoration-none" rel="bookmark" title="{{ 'Permalink to'|gettext(DEFAULT_LANG) }} {{ article.title|striptags }}">
-      <h2 class="post-title display-4">{{ article.title }}</h2>
-   </a>
+
+  <h1 class="fw-bold">
+    <a href="{{ SITEURL }}/{{ article.url }}" class="text-decoration-none" rel="bookmark" title="{{ 'Permalink to'|gettext(DEFAULT_LANG) }} {{ article.title|striptags }}">
+      {{ article.title }}
+    </a>
+  </h1>
+
 {% if SHOW_FULL_ARTICLE %}
 {{ article.content }}
 {% else %}
+no full article
    <div class="article-summary">
    {% if article.has_summary %}
    {{ article.summary }}
@@ -58,20 +64,18 @@
    {% endif %}
    </div>
 {% endif %}
-<p class="post-meta"><i class="bi bi-megaphone"> {{ 'Posted by'|gettext(DEFAULT_LANG) }}</i>
-{% if SINGLE_AUTHOR_SAVE_AS %}
-<a href="{{ SITEURL }}/{{ SINGLE_AUTHOR_SAVE_AS }}" class="text-decoration-none">{{ AUTHOR }}</a>
-{% else %}
-{% for author in article.authors %}
-<a href="{{ SITEURL }}/{{ author.url }}" class="text-decoration-none">{{ author }}</a>
-{% endfor %}
-{% endif %}
-{{ 'on'|gettext(DEFAULT_LANG) }} {{ article.locale_date }}
+
+
+{{DEFAULT_LANG}} {{ 'on'|gettext(DEFAULT_LANG) }} {{ article.locale_date }}
+
 </p>
 </div>
 <hr class="medium"><br>
 {% endfor %}
+
 {% if DEFAULT_PAGINATION and articles_paginator.num_pages > 1 %}
+pagination
 {% include "pagination.html" %}
 {% endif %}
+
 {% endblock content %}

@@ -32,6 +32,9 @@ endif
 
 all: devserver
 
+update:
+	git submodule update --recursive
+
 full:
 	BTEX_UPDATE=true "$(PELICAN)" "$(INPUTDIR)" -o "$(OUTPUTDIR)" -s "$(CONFFILE)" $(PELICANOPTS)
 

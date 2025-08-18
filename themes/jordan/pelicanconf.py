@@ -59,13 +59,6 @@ LINKS = (('Pelican', 'https://getpelican.com/'),
          ('Jinja2', 'https://palletsprojects.com/p/jinja/'),
          ('You can modify those links in your config file', '#'),)
 
-# Pagination
-DEFAULT_ORPHANS = 2
-DEFAULT_PAGINATION = 5
-PAGINATION_PATTERNS = (
-    (1, '{base_name}/', '{base_name}/index.html'),
-    (2, '{base_name}/page/{number}/', '{base_name}/page/{number}/index.html'),
-)
 
 # Uncomment following line if you want document-relative URLs when developing
 RELATIVE_URLS = False
@@ -77,7 +70,25 @@ EXTRA_PATH_METADATA = {
     'assets/htaccess': {'path': '.htaccess'},
 }
 
+# List of templates that are used directly to render content. Typically direct templates are used to generate index pages for collections of content (e.g., tags and category index pages). If the tag and category collections are not needed, set DIRECT_TEMPLATES = ('index', 'archives')
 DIRECT_TEMPLATES = ['index', 'tags',  'archives', 'search', 'categories']
+#DIRECT_TEMPLATES = ['index','archives','error']
+
+# Provides the direct templates that should be paginated, and how many posst to display per page. If None, will fall back to the DEFAULT_PAGINATION value.
+PAGINATED_TEMPLATES = {
+    'index': 1,
+    'tag': None,
+    'category': None,
+    'archives': 9
+}
+
+# Pagination
+DEFAULT_ORPHANS = 2
+DEFAULT_PAGINATION = 1
+PAGINATION_PATTERNS = (
+    (1, '{base_name}/', '{base_name}/index.html'),
+    (2, '{base_name}/page/{number}/', '{base_name}/page/{number}/index.html'),
+)
 
 # Post and Pages path
 ARTICLE_URL = '{date:%Y}/{date:%m}/{slug}'
@@ -162,6 +173,8 @@ SITEMAP = {
         'pages': 'monthly'
     }
 }
+
+SHOW_FULL_ARTICLE=True
 
 # Config for Static Comments Plus plugin
 STATIC_COMMENTS_PLUS = True
