@@ -1,0 +1,509 @@
+<!doctype html>
+<html lang="en">
+  <head>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1 shrink-to-fit=no">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link href="/theme/css/style.css" rel="stylesheet">
+<link href="/theme/css/docs.css" rel="stylesheet">
+<link href="/theme/css/misc.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+
+
+
+
+<title>Setting up a development QEmu VM on Linux with nested virtualization for Windows 11 with WSL2</title>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<meta name="author" content="Jordan Augé">
+
+
+
+<meta property="og:locale" content="">
+
+<meta property="og:site_name" content="Jordan Augé">
+
+
+
+<meta name="description" content="Jordan Augé's homepage">
+
+<script src="/theme/js/color-modes.js"></script>
+
+<meta name="author" content="Jordan Augé">
+
+
+</head>
+
+<body class="article-dev-qemu-windows">
+
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none">
+  <symbol id="archive" viewBox="0 0 16 16">
+    <path d="M0 2a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1v7.5a2.5 2.5 0 0 1-2.5 2.5h-9A2.5 2.5 0 0 1 1 12.5V5a1 1 0 0 1-1-1V2zm2 3v7.5A1.5 1.5 0 0 0 3.5 14h9a1.5 1.5 0 0 0 1.5-1.5V5H2zm13-3H1v2h14V2zM5 7.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5z"/>
+  </symbol>
+  <symbol id="arrow-right-short" viewBox="0 0 16 16">
+    <path fill-rule="evenodd" d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8z"/>
+  </symbol>
+  <symbol id="check2" viewBox="0 0 16 16">
+    <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
+  </symbol>
+  <symbol id="circle-half" viewBox="0 0 16 16">
+    <path d="M8 15A7 7 0 1 0 8 1v14zm0 1A8 8 0 1 1 8 0a8 8 0 0 1 0 16z"/>
+  </symbol>
+  <symbol id="clipboard" viewBox="0 0 16 16">
+    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+    <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+  </symbol>
+  <symbol id="file-earmark-richtext" viewBox="0 0 16 16">
+    <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z"/>
+    <path d="M4.5 12.5A.5.5 0 0 1 5 12h3a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5zm0-2A.5.5 0 0 1 5 10h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5zm1.639-3.708 1.33.886 1.854-1.855a.25.25 0 0 1 .289-.047l1.888.974V8.5a.5.5 0 0 1-.5.5H5a.5.5 0 0 1-.5-.5V8s1.54-1.274 1.639-1.208zM6.25 6a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5z"/>
+  </symbol>
+  <symbol id="film" viewBox="0 0 16 16">
+    <path d="M0 1a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V1zm4 0v6h8V1H4zm8 8H4v6h8V9zM1 1v2h2V1H1zm2 3H1v2h2V4zM1 7v2h2V7H1zm2 3H1v2h2v-2zm-2 3v2h2v-2H1zM15 1h-2v2h2V1zm-2 3v2h2V4h-2zm2 3h-2v2h2V7zm-2 3v2h2v-2h-2zm2 3h-2v2h2v-2z"/>
+  </symbol>
+  <symbol id="moon-stars-fill" viewBox="0 0 16 16">
+    <path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z"/>
+    <path d="M10.794 3.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387a1.734 1.734 0 0 0-1.097 1.097l-.387 1.162a.217.217 0 0 1-.412 0l-.387-1.162A1.734 1.734 0 0 0 9.31 6.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387a1.734 1.734 0 0 0 1.097-1.097l.387-1.162zM13.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.156 1.156 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.156 1.156 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732L13.863.1z"/>
+  </symbol>
+  <symbol id="rss" viewBox="0 0 16 16">
+    <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/>
+    <path d="M5.5 12a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm-3-8.5a1 1 0 0 1 1-1c5.523 0 10 4.477 10 10a1 1 0 1 1-2 0 8 8 0 0 0-8-8 1 1 0 0 1-1-1zm0 4a1 1 0 0 1 1-1 6 6 0 0 1 6 6 1 1 0 1 1-2 0 4 4 0 0 0-4-4 1 1 0 0 1-1-1z"/>
+  </symbol>
+  <symbol id="sun-fill" viewBox="0 0 16 16">
+    <path d="M8 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/>
+  </symbol>
+  <symbol id="three-dots" viewBox="0 0 16 16">
+    <path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/>
+  </symbol>
+</svg>
+
+
+
+
+  <header class="navbar navbar-expand-lg navbar-dark bd-navbar sticky-top">
+  <nav class="container-xxl bd-gutter flex-wrap flex-lg-nowrap" aria-label="Main navigation">
+    <div class="d-lg-none" style="width: 2.25rem;"></div>
+
+      <a class="navbar-brand" href="//" aria-label=Jordan Augé>Jordan Augé</a>
+      <div class="d-none d-lg-inline-flex">
+    </div>
+
+      <!-- Remove one -->
+      <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <button class="navbar-toggler d-flex d-lg-none order-3 p-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#bdNavbar" aria-controls="bdNavbar" aria-expanded="false" aria-label="Toggle navigation">
+        <svg class="bi" width="24" height="24" aria-hidden="true"><use xlink:href="#three-dots"></use></svg>
+      </button>
+
+         <div class="collapse navbar-collapse" id="navbarResponsive">
+            <!--hr class="d-lg-none text-white-50"-->
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <!--ul class="navbar-nav flex-row flex-wrap bd-navbar-nav"-->
+               <li class="nav-item col-6 col-lg-auto"><a class="nav-link py-2 px-0 px-lg-2" href="/">Home</a></li>
+               <li class="nav-item col-6 col-lg-auto"><a class="nav-link py-2 px-0 px-lg-2" href="/research">Research</a></li>
+               <li class="nav-item col-6 col-lg-auto"><a class="nav-link py-2 px-0 px-lg-2" href="/research/publications">Publications</a></li>
+               <li class="nav-item col-6 col-lg-auto"><a class="nav-link py-2 px-0 px-lg-2" href="/projects">Projects</a></li>
+               <li class="nav-item col-6 col-lg-auto"><a class="nav-link py-2 px-0 px-lg-2" href="/blog">Blog</a></li>
+            </ul>
+
+        <hr class="d-lg-none text-white-50">
+
+        <ul class="navbar-nav flex-row flex-wrap ms-md-auto">
+          <li class="nav-item col-6 col-lg-auto">
+            <a class="nav-link py-2 px-0 px-lg-2" href="https://github.com/twbs" target="_blank" rel="noopener">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" class="navbar-nav-svg" viewBox="0 0 512 499.36" role="img"><path fill="currentColor" fill-rule="evenodd" d="M256 0C114.64 0 0 114.61 0 256c0 113.09 73.34 209 175.08 242.9 12.8 2.35 17.47-5.56 17.47-12.34 0-6.08-.22-22.18-.35-43.54-71.2 15.49-86.2-34.34-86.2-34.34-11.64-29.57-28.42-37.45-28.42-37.45-23.27-15.84 1.73-15.55 1.73-15.55 25.69 1.81 39.21 26.38 39.21 26.38 22.84 39.12 59.92 27.82 74.5 21.27 2.33-16.54 8.94-27.82 16.25-34.22-56.84-6.43-116.6-28.43-116.6-126.49 0-27.95 10-50.8 26.35-68.69-2.63-6.48-11.42-32.5 2.51-67.75 0 0 21.49-6.88 70.4 26.24a242.65 242.65 0 0 1 128.18 0c48.87-33.13 70.33-26.24 70.33-26.24 14 35.25 5.18 61.27 2.55 67.75 16.41 17.9 26.31 40.75 26.31 68.69 0 98.35-59.85 120-116.88 126.32 9.19 7.9 17.38 23.53 17.38 47.41 0 34.22-.31 61.83-.31 70.23 0 6.85 4.61 14.81 17.6 12.31C438.72 464.97 512 369.08 512 256.02 512 114.62 397.37 0 256 0z"/></svg>
+
+              <small class="d-lg-none ms-2">GitHub</small>
+            </a>
+          </li>
+
+          <li class="nav-item py-2 py-lg-1 col-12 col-lg-auto">
+            <div class="vr d-none d-lg-flex h-100 mx-lg-2 text-white"></div>
+            <hr class="d-lg-none my-2 text-white-50">
+          </li>
+
+          <li class="nav-item dropdown">
+            <button class="btn btn-link nav-link py-2 px-0 px-lg-2 dropdown-toggle d-flex align-items-center"
+                    id="bd-theme"
+                    type="button"
+                    aria-expanded="false"
+                    data-bs-toggle="dropdown"
+                    data-bs-display="static"
+                    aria-label="Toggle theme (auto)">
+              <svg class="bi my-1 theme-icon-active"><use href="#circle-half"></use></svg>
+              <span class="d-lg-none ms-2" id="bd-theme-text">Toggle theme</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bd-theme-text">
+              <li>
+                <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">
+                  <svg class="bi me-2 opacity-50 theme-icon"><use href="#sun-fill"></use></svg>
+                  Light
+                  <svg class="bi ms-auto d-none"><use href="#check2"></use></svg>
+                </button>
+              </li>
+              <li>
+                <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">
+                  <svg class="bi me-2 opacity-50 theme-icon"><use href="#moon-stars-fill"></use></svg>
+                  Dark
+                  <svg class="bi ms-auto d-none"><use href="#check2"></use></svg>
+                </button>
+              </li>
+              <li>
+                <button type="button" class="dropdown-item d-flex align-items-center active" data-bs-theme-value="auto" aria-pressed="true">
+                  <svg class="bi me-2 opacity-50 theme-icon"><use href="#circle-half"></use></svg>
+                  Auto
+                  <svg class="bi ms-auto d-none"><use href="#check2"></use></svg>
+                </button>
+              </li>
+            </ul>
+          </li>
+
+        </ul>
+      </div>
+    </div>
+  </nav>
+</header>
+
+
+    <div class="container-xxl px-4 px-xxl-2">
+      <div class="d-lg-grid content" id="content">
+
+        <div class="sidebar">
+          <div class="masthead py-5">
+  <div class="mb-4 text-center text-lg-start">
+    <div class="ms-3 ms-lg-0">
+      <h1 class="mb-1 mb-lg-2 f1 fw-600">Blog</h1>
+      <p class="col-sm-8 col-lg-12 mx-auto mb-0 mb-lg-4">
+      </p>
+    </div>
+  </div>
+
+  <nav class="nav nav-pills justify-content-center flex-lg-column justify-content-lg-start gap-1 sidebar-nav">
+    <a class="nav-link d-flex align-items-center active fw-semibold" href="/">
+      <svg class="bi me-2 f5 bd-text-purple"><use xlink:href="#file-earmark-richtext"></use></svg>
+      All posts
+    </a>
+    <a class="nav-link d-flex align-items-center" href="/blog/archives/">
+      <svg class="bi me-2 f5 text-primary"><use xlink:href="#archives"></use></svg>
+      Archive
+    </a>
+    <a class="nav-link d-flex align-items-center" href="feed.xml">
+      <svg class="bi me-2 f5 text-warning"><use xlink:href="#rss"></use></svg>
+      Subscribe
+    </a>
+  </nav>
+
+</div>
+
+        </div>
+        <div class="main">
+          <div class="posts-container mx-auto my-5">
+
+
+<div class="posts-container mx-auto my-5">
+  <div class="posts">
+    <div class="post">
+       <h1>Setting up a development QEmu VM on Linux with nested virtualization for Windows 11 with WSL2</h1>
+
+
+   <div class="article-summary">
+   NO SUMMARY
+   </div>
+
+
+
+       <p>I exclusively run Linux at home, and needed a Windows VM for building the
+<a href="https://github.com/vpinball/vpinball">virtual pinball suite</a>
+and other software that required me to use the Windows Subsystem for Linux
+(WSL2).</p>
+<h2 id="virtualbox-vs-qemu">Virtualbox vs QEmu</h2>
+<p>I initially chose Virtualbox for simplicity but never managed to install WSL2 on
+it. It appears that WSL2 is implemented on top of Windows HyperV technology, and
+it thus requires nested virtualization features to be used inside a VM.</p>
+<p>Unlike what is announced in official documentation <a href="https://learn.microsoft.com/en-us/windows/wsl/faq#will-i-be-able-to-run-wsl-2-and-other-3rd-party-virtualization-tools-such-as-vmware--or-virtualbox-">wsl-virtualbox</a>, it seems
+nested virtualization support for HyperV did not make it to the latest 7.0 Virtualbox
+release (7.0.14-Debian as of this writing), and thus it was not possible to
+install WSL2 <a href="https://forums.virtualbox.org/viewtopic.php?t=110039">vbox-hyperv</a>. This might change with the release of 7.1.</p>
+<p><code>WslRegisterDistribution failed with error: 0x80370102
+Please enable the Virtual Machine Platform Windows feature and ensure virtualization is enabled in the BIOS.
+For information please visit https://aka.ms/enablevirtualization</code></p>
+<p>This is the opportunity to give a try at QEmu which supports it and promises to
+be more efficient with the use of KVM and virtio.</p>
+<h2 id="qemu-setup">QEmu setup</h2>
+<p>I followed the excellent writeup by [raphtlw], for which the steps are equivalent
+for Windows 11 (beyond a couple of remaining IDE occurrences that should be
+SATA). The most important steps are summarized here and you can refer to
+the original page for a detailed explanation with screenshots.</p>
+<h3 id="dependencies">Dependencies</h3>
+<p>```
+sudo apt-get install qemu-kvm  bridge-utils virt-manager qemu-system virt-viewer spice-vdagent</p>
+<p>```</p>
+<h3 id="regular-setup">Regular setup</h3>
+<p>Before starting the installation process, you will need to download two ISO:</p>
+<ul>
+<li>Windows 11, available on [microsoft website][win11-download]</li>
+<li><a href="virtio-iso">VirtoIO drivers ISO</a>, that will be needed to setup both virtio
+devices which are required during installation (network is indeed mandatory),
+and will be mounted as a second CDROM drive.</li>
+</ul>
+<p>Create a new VM that will be installed from a ISO file:</p>
+<ul>
+<li>’‘’CPU, memory’‘’ : I left default settings</li>
+<li>’‘’disk size’‘’: At least 60GB is recommended as Windows itself will take
+around 30GB, and build tools will require an additional 10/20 GB. You should always
+be able to extend the partition after installation.</li>
+<li>Create a second CDROM drive in the Storage menu (don’t forget to select the
+  medium type to CDROM), and point to the downloaded ISO.</li>
+<li>Enable boot from the SATA CDROM in Boot options. You should still be able to
+select it via the BIOS menu if the machine does not boot.</li>
+<li>Swtich to virtio driver in both the HDD and the NIC for improved performance.</li>
+</ul>
+<h3 id="fine-tuning-hyperv-support">Fine-tuning HyperV support</h3>
+<p>The current setup worked fine until I installed WSL2 and rebooted and got
+greeted with the infamous blue screen and the message:
+SYSTEM_THREAD_EXCEPTION_NOT_HANDLED, which it never managed to recover.</p>
+<p>I found directions in this excellent <a href="https://www.redpill-linpro.com/techblog/2021/04/07/nested-virtualization-hyper-v-in-qemu-kvm.html">writeup from Redpill
+Linpro</a>, and after a couple of tries with the XML editor in the
+“Processor” section of the VM configuration, I managed to boot Windows again
+with these settings:</p>
+<p><code>xml
+  &lt;features&gt;
+    &lt;acpi/&gt;
+    &lt;apic/&gt;
+    &lt;pae/&gt;
+    &lt;hyperv mode="custom"&gt;
+      &lt;vpindex state="on"/&gt;
+      &lt;synic state="on"/&gt;
+    &lt;/hyperv&gt;
+    &lt;smm state="on"/&gt;
+  &lt;/features&gt;
+  &lt;cpu mode="custom" match="exact" check="partial"&gt;
+    &lt;model fallback="allow"&gt;Broadwell-noTSX-IBRS&lt;/model&gt;
+    &lt;feature policy="disable" name="hypervisor"/&gt;
+    &lt;feature policy="require" name="vmx"/&gt;
+  &lt;/cpu&gt;
+  &lt;clock offset="utc"&gt;
+    &lt;timer name="rtc" tickpolicy="catchup"/&gt;
+    &lt;timer name="pit" tickpolicy="delay"/&gt;
+    &lt;timer name="hpet" present="no"/&gt;
+    &lt;timer name="hypervclock" present="yes"/&gt;
+    &lt;timer name="kvmclock" present="yes"/&gt;
+  &lt;/clock&gt;</code></p>
+<p>I did not try yet to optimize those settings beyond confirming disabling the CPU
+passthrough and setting the correct CPU architecture were part of the solution.
+The next step would be to dig more into the documentation and/or continue the
+trial and error process to find which properties are indeed required, or lead to
+the best performance, And as the article says, your results may vary…</p>
+<p>As a reference, that was the original configuration proposed by QEmu.</p>
+<p><code>xml
+  &lt;features&gt;
+    &lt;acpi/&gt;
+    &lt;apic/&gt;
+    &lt;hyperv&gt;
+      &lt;relaxed state="on"/&gt;
+      &lt;vapic state="on"/&gt;
+      &lt;spinlocks state="on" retries="8191"/&gt;
+    &lt;/hyperv&gt;
+    &lt;vmport state="off"/&gt;
+  &lt;/features&gt;
+  &lt;cpu mode="host-passthrough"/&gt;
+  &lt;clock offset="localtime"&gt;
+    &lt;timer name="rtc" tickpolicy="catchup"/&gt;
+    &lt;timer name="pit" tickpolicy="delay"/&gt;
+    &lt;timer name="hpet" present="no"/&gt;
+    &lt;timer name="hypervclock" present="yes"/&gt;
+  &lt;/clock&gt;</code></p>
+<h2 id="windows-11-installation">Windows 11 installation</h2>
+<p>You can simply let the installer guide you until you reach the step where you
+choose on which disk to install Windows, which should show an empty list.</p>
+<p>You need to select the “Load drivers” option, and browse the second CDROM (E:)
+to find the correct drivers for your OS and platform (note that sometimes there
+is no win11 version but win10 is also fine):
+- E:\viostor\w11\amd64 (for disk)
+- E:\NetKVM\w11\amd64 (for NIC)
+- E:\qxldod\w10\amd64 (for graphic card)</p>
+<p>By checking “Hide drivers that are not compatible with this computer’s hardware”
+you’ll ensure that the correct drivers are found. Nothing showing might be a
+sign that you forgot for instance to switch a device to virtio.</p>
+<p>Further down in the installation process, you won’t have the opportunity to load
+new drivers through the GUI. You might reach a step where the installer tries to
+find a network connection, and gets stuck because there is no network interface.
+In such a situation, you can hit Shift+F10 to open a shell, navigate in the
+respective folders, and run the following commands;</p>
+<p><code>pnputil /add-driver *.inf
+pnputil /scan-devices</code></p>
+<p>It happened to me that the installer found the network interface but refused to
+connect because of no internet connection. Running a ping from the shell
+confirmed the issue. In the host, the packets arrived to the bridge but were not
+forwarded, likely because of missing iptables rules. The simplest solution is
+then to restart libvirtd, that will not affect running VMs:</p>
+<p><code>sudo service libvirtd restart</code></p>
+<h2 id="guest-agent-and-additional-drivers">Guest agent and additional drivers</h2>
+<ul>
+<li>E:\virtio-win-guest-tools.exe</li>
+<li><a href="https://www.spice-space.org/download.html">spice-guest-tools</a>, in the Guest / Windows binaries section of the
+page, to get advanced features such as copy/paste between the host and guest</li>
+</ul>
+<h2 id="visual-studio-and-related-tools">Visual Studio and related tools</h2>
+<p>You can freely download the <a href="https://visualstudio.microsoft.com/downloads/">installer online</a> with the community edition.</p>
+<p>These are the settings I used for my current use case, in the workloads tab.
+They will approximately require 10 additional GB.</p>
+<p><code>markdown
+Web &amp; Cloud
+    [ ] ASP.NET and web development
+    [ ] Azure development
+    [X] Python development, could be useful
+    [ ] Node.js developmen
+Desktop &amp; Mobile
+    [ ] .NET Multi-platform App UI development
+    [ ] .NET Desktop development
+    [X] Desktop development with C++
+    [ ] Universal Windows Platform development
+    [ ] Mobile development with C++
+Gaming
+    [X] Game development with Unity
+    [X] Game development with C++
+Other toolsets
+    [ ] Data storage and processing
+    [ ] Data science and analytical applications
+    [ ] Visual Studio extension development
+    [ ] Office / SharePoint development
+    [X] Linux and embedded development with C++</code></p>
+<p>Git will be required, and you can find Windows binaries from <a href="https://git-scm.com/download/win">the official
+webwite</a>.</p>
+<h2 id="wsl2">WSL2</h2>
+<p>You can install WSL2 directly from the [Microsoft store][wsl-store], and it
+seems you can also install a Distribution from there (eg Debian). We will go
+through the steps to install it via commandline.</p>
+<p>Choose cmd.exe in the start menu, and Run as administrator:</p>
+<p><code>wsl --install</code></p>
+<p>If you have Windows 11, or a recent enough version of windows 10, you should
+already has WSL2. You can confirm with:</p>
+<p><code>$ wsl -v
+WSL version: 2.1.4.0
+Kernel version: 5.15.146.1-2
+WSLg version: 1.0.60
+MSRDC version: 1.2.5105
+Direct3D version: 1.611.1-81528511
+DXCore version: 10.0.25131.1002-220531-1700.rs-onecore-base2-hyp
+Windows version: 10.0.22631.2861</code></p>
+<p>More information can be found in [wslinfo], [wsl1] and [wsl2]. The system will
+ask you to reboot your machine.</p>
+<p>You can then setup a Linux distribution (eg. Debian) through the following
+command:</p>
+<p>```
+$ wsl –install –distribution Debian</p>
+<p>Installing Windows optional component: VirtualMachinePlatform</p>
+<p>Deployment Image Servicing and Management tool
+Version: 10.0.22621.2792</p>
+<p>Image Version: 10.0.22631.2861</p>
+<p>Enabling feature(s)
+[==========================100.0%==========================]
+The operation completed successfully.
+The requested operation is successful. Changes will not be effective until the system is rebooted.
+Installing: Debian GNU/Linux
+Debian GNU/Linux has been installed.
+The requested operation is successful. Changes will not be effective until the system is rebooted.</p>
+<p>Need to reboot. Installation takes a couple of minutes</p>
+<p>```</p>
+<p>After choosing a login a password, you should have a linux shell.</p>
+<h2 id="maintainance">Maintainance</h2>
+<p>If you even get out of disk space, you can either try to reclaim some space, or
+extend the windows image files.</p>
+<h3 id="reclaim-space-compact-os-virtual-memory-and-hibernation-files">Reclaim space: Compact OS, virtual memory and hibernation files</h3>
+<p>You can first try to uninstall useless applications, although the setup we did
+has hardly any software installed.</p>
+<p>You can reclaim a few GB by compressing system files, following [this
+tutorial][win10-footprint], which exploits the “Compact OS” feature of Windows:</p>
+<ul>
+<li>Open Start.</li>
+<li>Search for Command Prompt, right-click the result, and select Run as administrator.</li>
+<li>Type the following command to verify that your system is not already compressed and press Enter:Compact.exe /CompactOS:query</li>
+<li>Type the following command to reduce the size of Windows 10 and apps and press Enter:Compact.exe /CompactOS:always</li>
+<li>Once you completed these steps, Compact OS will begin the compression process, which could take up to 20 minutes.</li>
+<li>You can always revert the changes using the same instructions, but on step No. 4, use this command Compact.exe /CompactOS:never and press Enter.</li>
+</ul>
+<p>A further way to gain space is to save on the virtual memory and hibernation
+data files:</p>
+<p>Open Start.
+Search for Command Prompt, right-click the result, and select Run as administrator.
+Type the following command to make Hiberfil.sys smaller and press Enter:powercfg /h /type reduced</p>
+<p>The above command reduces the size of the hibernation file by 30 percent. If you want to remove the file completely, you can use the</p>
+<p>powercfg /h /off
+command instead.</p>
+<p>If you want to change the hibernation settings back to the full amount, simply follow the same instructions, but on step No. 3, make sure to use this command</p>
+<p>powercfg /h /size 100</p>
+<h3 id="extending-the-qemu-image-size">Extending the QEMU image size</h3>
+<p>Augment the qemu image size</p>
+<p>While the host if down:</p>
+<p><code>sudo qemu-img resize /var/lib/libvirt/images/win11.qcow2 +10G</code></p>
+<p>You can then directly use Windows’ Disk Manager to extend the filesystem over
+the newly available space.</p>
+<p>I could not manage to move the other system partition sitting in between my C
+drive and unallocated space.</p>
+<p>sudo modprobe nbd max_part=16
+sudo qemu-nbd -c /dev/nbd0  /var/lib/libvirt/images/win11.qcow2</p>
+<p>kde partition manager does not see the additional 10G
+gparted does, but raises the following warning:
+Not all of the space available to /dev/nbd0 appears to be used, you can fix the GPT to use all of the space (an extra 20971520 blocks) or continue with the current setting?</p>
+<p>Once repaired it is okay in kde partition manager too.</p>
+<p>sudo gparted /dev/nbd0</p>
+<p>sudo qemu-nbd -d /dev/nbd0</p>
+<h2 id="references">References</h2>
+<p>[raphtlw]: How to set up a KVM / QEMU Windows 10 VM, by Raphael
+https://raphtlw.medium.com/how-to-set-up-a-kvm-qemu-windows-10-vm-ca1789411760</p>
+<p>[virtio-iso]: Virtio Drivers ISO
+https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/archive-virtio/?C=M;O=D
+https://pve.proxmox.com/wiki/Windows_VirtIO_Drivers</p>
+<p>[wslstore]
+https://aka.ms/wslstorepage</p>
+<p>[wslinfo]
+https://aka.ms/wslstoreinfo</p>
+<p>[wsl1]
+https://support.microsoft.com/fr-fr/windows/activer-la-virtualisation-sur-windows-11-pc-c5578302-6e43-4b4b-a449-8ced115f58e1</p>
+<p>[wsl2]
+https://learn.microsoft.com/fr-fr/windows/wsl/install-manual#step-4—download-the-linux-kernel-update-package</p>
+<p>[win10-footprint]
+https://www.windowscentral.com/how-reduce-windows-10-footprint-your-pc</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+            <hr>
+          </div>
+        </div>
+    </div>
+</div>
+
+
+<footer class="footer">
+  <div class="footer-container">
+    <p>&copy; 2025, Jordan Augé</p>
+  </div>
+</footer>
+    <!--script async src="/theme/js/vendor/bootstrap.bundle.min.js"></script-->
+    <script async src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script async src="/theme/js/lazyload.js"></script-->
+    <script async src="/theme/js/application.js"></script>
+
+
+  </body>
+</html>

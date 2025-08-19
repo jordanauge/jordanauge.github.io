@@ -1,0 +1,12 @@
+After some attempts with cheap hardware that already proved useful, i decided to
+upgrade my setup with a more robust camera system. I'll summarize here my
+requirements, the models I have reviewed and the rationale for going with the
+Hikvision.
+
+## Requirements
+
+- 'Ethernet+PoE' : the cameras will be mounted outside the house and the WiFi
+proved cumbersome to setup, unreliable, and insufficient for high quality video
+streams.
+
+as well as the models I have review
