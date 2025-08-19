@@ -1,12 +1,10 @@
 name: Pelican site CI
 
 on:
-  # Trigger the workflow on push or pull request,
-  # but only for the master branch
   workflow_dispatch:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   build:

@@ -1,0 +1,21 @@
+{% macro project_tpl(project) -%}
+<div class="card mb-3">
+  <div class="row g-0">
+    <div class="col-md-1">
+      <img src="/static/img/content/{{ project.img }}" title="{{ project.title }}">
+    </div>
+    <div class="col-md-11">
+      <div class="card-body">
+          <h5 class="card-title">{{ project.title }}</h5>
+  {% if project.desc %}
+          <p class="card-text">{{ project.desc }}</p>
+  {% endif %}
+  {% if project.slug %}
+  <a href="{{ project.slug }}" class="btn btn-primary" role="button">Read more...</a>
+  {% endif %}
+
+      </div>
+    </div>
+  </div>
+</div>
+{%- endmacro %}

@@ -1,0 +1,19 @@
+- name: Aether
+  logo: img/logos/aether.png
+  start: Nov 2024 
+  end: present
+  title: Agentic network change validation
+  description: |
+    Aether is ...
+  publications:
+  tasks:
+    - impact assessment agent (python)
+    - NDT & API (Golang)
+    - batfish extensions : IOSXR ISIS specifics, simplified IPv6 (Java)
+    - demonstrated through 5 simple use cases (March 2025), and 2 SWISSCOM real life (July 2025)
+    - Meraki integration (Aug 2025)
+  collaborations:
+    - SWISSCOM
+  link:
+  links:
+- name: Dragonfly

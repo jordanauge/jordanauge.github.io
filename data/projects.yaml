@@ -1,0 +1,14 @@
+- img: open-home-foundation-logo.jpg
+  slug: projects/open-home-automation
+  title: Open home automation
+  desc: An effort to assemble an open and cloud-independent home automation system.
+- img: my-cool-image.png
+  title: Virtual pinball
+  desc: Realization of a pinball cabinet and various contributions to the community software.
+- img: my-cool-image.png
+  title: Woodworking
+  desc: Anything related to woodworking, workshop, tools and realizations.
+- img: my-cool-image.png
+  title: Electronics lab
+  desc: Electronic related projects, lab and tools, realizations and repairs.
+
